@@ -1,2 +1,3 @@
 .DS_Store
 usr.config.ini
+__pycache__
