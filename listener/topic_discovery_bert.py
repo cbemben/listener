@@ -18,14 +18,13 @@ class TopicDiscoveryBert:
 
     def get_data(self):
         #assert data is in a particular format
-        self._data.RESPONSE = self._data.RESPONSE.astype(str)
-        self._data['clean_comment'] = self._data['RESPONSE'].apply(lambda x: x.lower())
-        self._prepared_data = self._data
-        return self._prepared_data
+        if self._prepared_data is None:
+            self._data.RESPONSE = self._data.RESPONSE.astype(str)
+            self._data['clean_comment'] = self._data['RESPONSE'].apply(lambda x: x.lower())
+            self._prepared_data = self._data
 
     def get_embeddings(self):
-        if self._prepared_data is None:
-            self.get_data()
+        self.get_data()
         self._embeddings = self._model.encode(
                                self._prepared_data['clean_comment']
                               ,show_progress_bar=True)
@@ -59,7 +58,15 @@ class TopicDiscoveryBert:
         plt.colorbar()
         return plt.show()
 
-    def c_tf_idf(documents, m, ngram_range=(1, 1)):
+    def get_doc_dataframe(self):
+        self.get_cluster_labels()
+        self._prepared_data['Topic'] = self._cluster.labels_
+        self._prepared_data['Doc_ID'] = range(len(self._prepared_data))
+        self._prepared_data['Doc'] = self._prepared_data['clean_comment']
+        return self._prepared_data.groupby(['Topic'], as_index = False) \
+                                  .agg({'Doc': ' '.join})
+
+    def get_c_tf_idf(self, documents, m, ngram_range=(1, 1)):
         count = CountVectorizer(ngram_range=ngram_range, stop_words="english").fit(documents)
         t = count.transform(documents).toarray()
         w = t.sum(axis=1)
@@ -69,7 +76,7 @@ class TopicDiscoveryBert:
         tf_idf = np.multiply(tf, idf)
         return tf_idf, count
 
-    def extract_top_n_words_per_topic(tf_idf, count, docs_per_topic, n=20):
+    def get_top_n_words_per_topic(self, tf_idf, count, docs_per_topic, n=20):
         words = count.get_feature_names()
         labels = list(docs_per_topic.Topic)
         tf_idf_transposed = tf_idf.T
@@ -77,7 +84,7 @@ class TopicDiscoveryBert:
         top_n_words = {label: [(words[j], tf_idf_transposed[i][j]) for j in indices[i]][::-1] for i, label in enumerate(labels)}
         return top_n_words
 
-    def extract_topic_sizes(df):
+    def get_topic_sizes(self, df):
         topic_sizes = (df.groupby(['Topic'])
                          .Doc
                          .count()
