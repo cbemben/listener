@@ -93,6 +93,13 @@ class TopicDiscoveryBert:
                          .sort_values("Size", ascending=False))
         return topic_sizes
 
+    def get_topic_summary(self):
+        docs_per_topic = self.get_doc_dataframe()
+        tf_idf, count = self.get_c_tf_idf(docs_per_topic.Doc.values, m=len(docs_per_topic))
+        top_n_words = self.get_top_n_words_per_topic(tf_idf, count, docs_per_topic, n=20)
+        topic_sizes = self.get_topic_sizes(self._prepared_data)
+        return top_n_words, topic_sizes
+
 if __name__=='__main__':
     import pandas
     from listener.config import conf
