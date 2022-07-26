@@ -103,5 +103,5 @@ class TopicDiscoveryBert:
 if __name__=='__main__':
     import pandas
     from listener.config import conf
-    df = pandas.read_csv(conf['COMMPANEL']['SOURCE_FILE_PATH'])
+    df = pandas.read_csv(conf['DEFAULT']['SOURCE_FILE_PATH'])
     TD = TopicDiscoveryBert(data=df)

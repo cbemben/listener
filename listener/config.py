@@ -40,8 +40,9 @@ def _load_configuration(path: str, user_config_path: str = None):
     if user_config_path and Path.is_file(user_config_path):
         config = configparser.ConfigParser()
         config.read([path, user_config_path])
+        return config
 
-    return config
+    return default_config
 
 # Load config
 conf = _load_configuration(path=DEFAULT_CONFIG, user_config_path=USER_CONFIG)
