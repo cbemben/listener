@@ -19,4 +19,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.8',
+    include_package_data=True,
+    package_data={'': ['data/Reddit_Data.csv']},
 )
